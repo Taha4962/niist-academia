@@ -1,0 +1,29 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# File Uploads Directory
+uploads/*
+!uploads/.gitkeep
+
+# Environment variables
+.env
+.env.test
+.env.development
+
+# OS metadata
+.DS_Store
+Thumbs.db

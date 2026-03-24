@@ -1,0 +1,13 @@
+# Environment files
+.env
+*.env
+
+# Local docker compose overrides
+docker-compose.override.yml
+
+# Mounted Volumes Data (if testing relative paths)
+postgres_data/
+ollama_data/
+
+# Optional: System generated files
+.DS_Store

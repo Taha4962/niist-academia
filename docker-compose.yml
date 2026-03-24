@@ -1,0 +1,129 @@
+version: '3.9'
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: niist_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: niist_user
+      POSTGRES_PASSWORD: niist_pass
+      POSTGRES_DB: niist_academia
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - niist_network
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U niist_user
+             -d niist_academia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: niist_ollama
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - niist_network
+    environment:
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: niist_ollama_pull
+    depends_on:
+      - ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - niist_network
+    entrypoint: >
+      /bin/sh -c "sleep 10 &&
+      ollama pull llama3.2:3b &&
+      echo Model downloaded successfully"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    restart: on-failure
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: ../docker/ai-service.Dockerfile
+    container_name: niist_ai
+    restart: always
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:3b
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-service:/app
+    networks:
+      - niist_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: ../docker/server.Dockerfile
+    container_name: niist_server
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=niist_user
+      - DB_PASSWORD=niist_pass
+      - DB_NAME=niist_academia
+      - JWT_SECRET=niist_super_secret_jwt_2024
+      - AI_SERVICE_URL=http://ai-service:8000
+      - CLIENT_URL=http://localhost:3000
+      - NODE_ENV=development
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - ./server/uploads:/app/uploads
+    networks:
+      - niist_network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: ../docker/client.Dockerfile
+    container_name: niist_client
+    restart: always
+    depends_on:
+      - server
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+      - VITE_AI_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - niist_network
+
+volumes:
+  postgres_data:
+  ollama_data:
+
+networks:
+  niist_network:
+    driver: bridge
