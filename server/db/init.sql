@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS faculty (
   phone       VARCHAR(15) NOT NULL,
   designation VARCHAR(50),
   is_hod      BOOLEAN DEFAULT false,
+  profile_photo TEXT,
   created_at  TIMESTAMP DEFAULT NOW()
 );
 
@@ -185,7 +186,20 @@ CREATE TABLE IF NOT EXISTS marks (
   UNIQUE(student_id, subject_id, session_id)
 );
 
--- 17. notices
+-- 17. subject_marks_config
+CREATE TABLE IF NOT EXISTS subject_marks_config (
+  config_id     SERIAL PRIMARY KEY,
+  subject_id    INT REFERENCES subjects(subject_id),
+  session_id    INT REFERENCES sessions(session_id),
+  mst1_max      NUMERIC(5,2) DEFAULT 30,
+  mst2_max      NUMERIC(5,2) DEFAULT 30,
+  internal_max  NUMERIC(5,2) DEFAULT 20,
+  has_practical BOOLEAN DEFAULT false,
+  practical_max NUMERIC(5,2),
+  UNIQUE(subject_id, session_id)
+);
+
+-- 18. notices
 CREATE TABLE IF NOT EXISTS notices (
   notice_id   SERIAL PRIMARY KEY,
   faculty_id  INT REFERENCES faculty(faculty_id),
@@ -282,32 +296,4 @@ CREATE TABLE IF NOT EXISTS project_milestones (
   status       VARCHAR(10) CHECK (status IN ('pending', 'completed', 'missed')) DEFAULT 'pending'
 );
 
--- ============================================
--- DEFAULT TIME SLOTS
--- ============================================
-INSERT INTO time_slots (start_time, end_time, label) VALUES
-('08:00', '09:00', '8:00 - 9:00 AM'),
-('09:00', '10:00', '9:00 - 10:00 AM'),
-('10:00', '11:00', '10:00 - 11:00 AM'),
-('11:15', '12:15', '11:15 AM - 12:15 PM'),
-('12:15', '13:15', '12:15 - 1:15 PM'),
-('14:00', '15:00', '2:00 - 3:00 PM'),
-('15:00', '16:00', '3:00 - 4:00 PM');
 
--- ============================================
--- SEED DATA
--- ============================================
-INSERT INTO sessions (session_name, start_year, end_year) VALUES
-('2022-2026', 2022, 2026),
-('2023-2027', 2023, 2027),
-('2024-2028', 2024, 2028),
-('2025-2029', 2025, 2029);
-
-INSERT INTO branches (branch_name, branch_code) VALUES
-('Computer Science & Engineering', 'CSE');
-
-INSERT INTO users (email, password_hash, role, is_active, is_first_login) VALUES
-('hod@niist.ac.in', '$2b$10$HASH_NIIST_HOD001_HERE', 'faculty', true, true);
-
-INSERT INTO faculty (user_id, employee_id, name, phone, designation, is_hod) VALUES
-(1, 'HOD001', 'Dr. Puran Gour', '0755-4085500', 'Principal', true);
