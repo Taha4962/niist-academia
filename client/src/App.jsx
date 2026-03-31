@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './components/common/ProtectedRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
 import Navbar from './components/common/Navbar';
 import Sidebar from './components/common/Sidebar';
 import { useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 
 // Auth Pages
 import Login from './pages/auth/Login';
-import ChangePassword from './pages/auth/ChangePassword';
 
 // HOD Pages
 import HodDashboard from './pages/hod/Dashboard';
@@ -22,6 +22,7 @@ import HodNotices from './pages/hod/NoticeBoard';
 import HodProjects from './pages/hod/ProjectOverview';
 import HodCalendar from './pages/hod/AcademicCalendar';
 import HodLogs from './pages/hod/LoginLogs';
+import HodProfile from './pages/hod/Profile';
 
 // Faculty Pages
 import FacultyDashboard from './pages/faculty/Dashboard';
@@ -33,6 +34,7 @@ import FacultyNotes from './pages/faculty/Notes';
 import FacultyNotices from './pages/faculty/NoticeBoard';
 import FacultyStudents from './pages/faculty/Students';
 import FacultyProjects from './pages/faculty/Projects';
+import FacultyProfile from './pages/faculty/Profile';
 
 // Student Pages
 import StudentDashboard from './pages/student/Dashboard';
@@ -60,26 +62,25 @@ const Layout = ({ children }) => {
 };
 
 const App = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
-        
+
         {/* Auth Routes */}
-        <Route 
-          path="/login" 
-          element={isAuthenticated ? <Navigate to="/change-password" /> : <Login />} 
-        />
-        <Route 
-          path="/change-password" 
-          element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} 
-        />
+        <Route path="/login" element={
+          isAuthenticated ? (
+            <Navigate to={user?.role === 'hod' ? '/hod/dashboard' : `/${user?.role}/dashboard`} replace />
+          ) : (
+            <Login />
+          )
+        } />
 
         {/* HOD Routes */}
         <Route path="/hod/*" element={
-          <ProtectedRoute allowedRoles={['hod']}>
+          <ProtectedRoute role="hod">
             <Layout>
               <Routes>
                 <Route path="dashboard" element={<HodDashboard />} />
@@ -94,6 +95,7 @@ const App = () => {
                 <Route path="projects" element={<HodProjects />} />
                 <Route path="calendar" element={<HodCalendar />} />
                 <Route path="logs" element={<HodLogs />} />
+                <Route path="profile" element={<HodProfile />} />
                 <Route path="*" element={<Navigate to="/hod/dashboard" replace />} />
               </Routes>
             </Layout>
@@ -102,7 +104,7 @@ const App = () => {
 
         {/* Faculty Routes */}
         <Route path="/faculty/*" element={
-          <ProtectedRoute allowedRoles={['faculty']}>
+          <ProtectedRoute role="faculty">
             <Layout>
               <Routes>
                 <Route path="dashboard" element={<FacultyDashboard />} />
@@ -114,6 +116,7 @@ const App = () => {
                 <Route path="notices" element={<FacultyNotices />} />
                 <Route path="students" element={<FacultyStudents />} />
                 <Route path="projects" element={<FacultyProjects />} />
+                <Route path="profile" element={<FacultyProfile />} />
                 <Route path="*" element={<Navigate to="/faculty/dashboard" replace />} />
               </Routes>
             </Layout>
@@ -122,7 +125,7 @@ const App = () => {
 
         {/* Student Routes */}
         <Route path="/student/*" element={
-          <ProtectedRoute allowedRoles={['student']}>
+          <ProtectedRoute role="student">
             <Layout>
               <Routes>
                 <Route path="dashboard" element={<StudentDashboard />} />
@@ -144,4 +147,6 @@ const App = () => {
   );
 };
 
-export default App;
+export default function Root() {
+  return <ToastProvider><App /></ToastProvider>;
+}
