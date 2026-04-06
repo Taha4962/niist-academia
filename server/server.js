@@ -1,6 +1,17 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message);
+  console.error(err.stack);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise);
+  console.error('Reason:', reason);
+});
 
 const app = express();
 
@@ -10,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Static uploads folder
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -26,6 +37,8 @@ const projectRoutes = require('./routes/projectRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const calendarRoutes = require('./routes/calendarRoutes');
 const holidayRoutes = require('./routes/holidayRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/hod', hodRoutes);
@@ -40,6 +53,8 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/timetable', timetableRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/holidays', holidayRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -48,6 +63,7 @@ app.get('/api/health', (req, res) => {
     app: 'NIIST Academia',
     college: 'NIIST Bhopal',
     university: 'RGPV',
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -66,6 +82,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`NIIST Academia Server running on port ${PORT}`);
 });
