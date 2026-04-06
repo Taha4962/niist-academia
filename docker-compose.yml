@@ -11,7 +11,8 @@ services:
       POSTGRES_DB: niist_academia
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./server/db/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./server/db/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
     ports:
       - "5432:5432"
     networks:
@@ -96,7 +97,7 @@ services:
       - "5000:5000"
     volumes:
       - ./server:/app
-      - /app/node_modules
+      - server_node_modules:/app/node_modules
       - ./server/uploads:/app/uploads
     networks:
       - niist_network
@@ -116,13 +117,15 @@ services:
       - "3000:3000"
     volumes:
       - ./client:/app
-      - /app/node_modules
+      - client_node_modules:/app/node_modules
     networks:
       - niist_network
 
 volumes:
   postgres_data:
   ollama_data:
+  server_node_modules:
+  client_node_modules:
 
 networks:
   niist_network:
