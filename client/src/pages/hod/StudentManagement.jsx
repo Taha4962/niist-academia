@@ -137,10 +137,10 @@ const StudentManagement = () => {
 
   // Mock sessions for the session cards UI
   const sessions = [
-    { id: 4, name: '2022-2026', students: 148, sem: '7&8' },
-    { id: 3, name: '2023-2027', students: 152, sem: '5&6' },
-    { id: 2, name: '2024-2028', students: 160, sem: '3&4' },
-    { id: 1, name: '2025-2029', students: 145, sem: '1&2' },
+    { id: 1, name: '2022-2026', students: 148, sem: '7&8' },
+    { id: 2, name: '2023-2027', students: 152, sem: '5&6' },
+    { id: 3, name: '2024-2028', students: 160, sem: '3&4' },
+    { id: 4, name: '2025-2029', students: 145, sem: '1&2' },
   ];
 
   return (

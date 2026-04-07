@@ -23,10 +23,10 @@ const Timetable = () => {
   const [formData, setFormData] = useState({ sa_id: '', room_no: '', slot_id: null, day: '' });
   
   const sessions = [
-    { id: '4', name: '2022-2026' },
-    { id: '3', name: '2023-2027' },
-    { id: '2', name: '2024-2028' },
-    { id: '1', name: '2025-2029' },
+    { id: '1', name: '2022-2026' },
+    { id: '2', name: '2023-2027' },
+    { id: '3', name: '2024-2028' },
+    { id: '4', name: '2025-2029' },
   ];
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
