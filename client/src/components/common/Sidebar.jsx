@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { 
   X, LayoutDashboard, Users, UserCheck, BookOpen, 
   Calendar, Clock, CheckSquare, FileText, Bell, 
-  ShieldAlert, Layers, GraduationCap, User
+  ShieldAlert, Layers, GraduationCap, User, Briefcase
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen }) => {
@@ -32,6 +32,7 @@ const Sidebar = ({ isOpen }) => {
       { name: 'Academic Calendar', path: '/hod/calendar', icon: Layers },
       { name: 'Attendance Overview', path: '/hod/attendance', icon: CheckSquare },
       { name: 'Marks & Results', path: '/hod/marks', icon: FileText },
+      { name: 'Project Overview', path: '/hod/projects', icon: Briefcase },
       { name: 'Notice Board', path: '/hod/notices', icon: Bell },
       { name: 'System Logs', path: '/hod/logs', icon: ShieldAlert },
     ];
@@ -44,6 +45,7 @@ const Sidebar = ({ isOpen }) => {
       { name: 'Upload Marks', path: '/faculty/marks', icon: FileText },
       { name: 'Assignments', path: '/faculty/assignments', icon: Layers },
       { name: 'Study Material', path: '/faculty/notes', icon: FileText },
+      { name: 'Projects', path: '/faculty/projects', icon: Briefcase },
       { name: 'Students List', path: '/faculty/students', icon: Users },
       { name: 'Notices', path: '/faculty/notices', icon: Bell },
     ];
@@ -56,6 +58,7 @@ const Sidebar = ({ isOpen }) => {
       { name: 'Results & Marks', path: '/student/marks', icon: FileText },
       { name: 'Assignments', path: '/student/assignments', icon: Layers },
       { name: 'Study Material', path: '/student/notes', icon: BookOpen },
+      { name: 'My Projects', path: '/student/projects', icon: Briefcase },
       { name: 'Notices', path: '/student/notices', icon: Bell },
     ];
   }
