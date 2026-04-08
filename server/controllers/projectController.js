@@ -327,7 +327,7 @@ const getHodOverview = async (req, res) => {
       LEFT JOIN project_teams pt ON pt.project_id = p.project_id
       LEFT JOIN project_team_members ptm ON ptm.team_id = pt.team_id
       LEFT JOIN project_milestones pm ON pm.project_id = p.project_id
-      GROUP BY p.project_id, ses.session_name, f.name
+      GROUP BY p.project_id, ses.session_name, ses.start_year, f.name
       ORDER BY ses.start_year DESC
     `);
     res.json(rows);
