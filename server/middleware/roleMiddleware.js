@@ -1,5 +1,5 @@
 const checkHOD = (req, res, next) => {
-  if (req.user && req.user.is_hod === true) {
+  if (req.user && (req.user.is_hod === true || req.user.is_hod === 'true')) {
     return next();
   }
   return res.status(403).json({ message: 'HOD access required' });
