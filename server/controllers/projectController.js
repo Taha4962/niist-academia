@@ -16,7 +16,7 @@ const getProjects = async (req, res) => {
         LEFT JOIN faculty gf ON gf.faculty_id = pt.guide_faculty_id
         WHERE ptm.student_id = $1 AND p.is_enabled = true
         LIMIT 1
-      `, [user.user_id]);
+      `, [user.student_id]);
       return res.json(rows[0] || null);
     }
 
@@ -33,7 +33,7 @@ const getProjects = async (req, res) => {
       LEFT JOIN project_milestones pm ON pm.project_id = p.project_id
       WHERE p.session_id = $1
       GROUP BY p.project_id, f.name
-      ORDER BY p.created_at DESC
+      ORDER BY p.project_id DESC
     `, [session_id]);
     res.json(rows);
   } catch (err) { res.status(500).json({ message: err.message }); }
@@ -43,7 +43,7 @@ const getProjects = async (req, res) => {
 const createProject = async (req, res) => {
   try {
     const { session_id, title, description, semester } = req.body;
-    const faculty_id = req.user.user_id;
+    const faculty_id = req.user.faculty_id;
 
     if (parseInt(semester) < 5) {
       return res.status(400).json({ message: 'Project module only for 3rd and 4th year students (Semester 5+)' });
@@ -210,7 +210,7 @@ const createMilestones = async (req, res) => {
   try {
     const { project_id } = req.params;
     const { title, deadline, milestones } = req.body;
-    const faculty_id = req.user.user_id;
+    const faculty_id = req.user.faculty_id;
 
     const projRes = await db.query(`SELECT session_id FROM projects WHERE project_id=$1`, [project_id]);
     const session_id = projRes.rows[0].session_id;
@@ -259,7 +259,7 @@ const updateMilestone = async (req, res) => {
   try {
     const { milestone_id } = req.params;
     const { title, deadline, status } = req.body;
-    const faculty_id = req.user.user_id;
+    const faculty_id = req.user.faculty_id;
 
     const old = await db.query(`SELECT pm.*, p.session_id FROM project_milestones pm JOIN projects p ON pm.project_id = p.project_id WHERE pm.milestone_id=$1`, [milestone_id]);
     if (old.rows.length === 0) return res.status(404).json({ message: 'Not found' });
@@ -334,9 +334,24 @@ const getHodOverview = async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
+// GET /api/projects/session-students/:session_id
+const getSessionStudents = async (req, res) => {
+  try {
+    const { session_id } = req.params;
+    const { rows } = await db.query(`
+      SELECT s.student_id, s.name, s.enrollment_no, s.phone, s.current_semester
+      FROM students s
+      JOIN users u ON s.user_id = u.user_id
+      WHERE s.session_id = $1 AND u.is_active = true
+      ORDER BY s.enrollment_no
+    `, [session_id]);
+    res.json(rows);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
 module.exports = {
   getProjects, createProject, updateProject, toggleProject,
   getTeams, createTeam, updateTeam, addMember, removeMember,
   getMilestones, createMilestones, updateMilestone, deleteMilestone,
-  getHodOverview
+  getHodOverview, getSessionStudents
 };

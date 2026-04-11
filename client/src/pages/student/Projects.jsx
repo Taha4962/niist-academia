@@ -101,7 +101,7 @@ const StudentProjects = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {teamDetail.members?.map(m => {
-              const isMe = m.student_id === user.user_id;
+              const isMe = m.student_id === user.student_id;
               return (
                 <div key={m.student_id} className={`flex items-center gap-3 p-3 rounded-xl border ${isMe ? 'border-niist-blue bg-blue-50/20' : 'border-gray-100'}`}>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${isMe ? 'bg-niist-navy text-white' : 'bg-gray-100 text-gray-600'}`}>

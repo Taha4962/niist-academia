@@ -94,7 +94,7 @@ const FacultyProjects = () => {
     try {
       const [projRes, studRes] = await Promise.all([
         api.get(`/projects/${session_id}`),
-        api.get(`/hod/students/${session_id}`)
+        api.get(`/projects/session-students/${session_id}`)
       ]);
       const projs = projRes.data;
       if (projs.length > 0) {

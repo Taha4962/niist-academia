@@ -12,6 +12,9 @@ router.get('/hod/overview', checkHOD, projectController.getHodOverview);
 // Student self route
 router.get('/student/self', checkStudent, getStudentProject);
 
+// Faculty: list students in a session (for building project teams)
+router.get('/session-students/:session_id', checkFaculty, projectController.getSessionStudents);
+
 // Milestone and team sub-routes (specific before generic params)
 router.put('/milestones/:milestone_id', checkFaculty, projectController.updateMilestone);
 router.delete('/milestones/:milestone_id', checkFaculty, projectController.deleteMilestone);

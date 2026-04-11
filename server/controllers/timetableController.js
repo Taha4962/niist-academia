@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { createAutoNotice } = require('../utils/noticeHelper');
 
 // GET /api/timetable/slots
 const getSlots = async (req, res) => {
@@ -157,26 +158,29 @@ const deleteTimetableEntry = async (req, res) => {
 const publishTimetable = async (req, res) => {
   try {
     const { session_id, semester } = req.body;
-    await db.query('BEGIN');
     
     await db.query(
       'UPDATE timetable SET is_published = true WHERE session_id = $1 AND semester = $2',
       [session_id, semester]
     );
 
-    // Auto-notice
-    const title = 'Timetable Published';
-    const content = `Timetable for Semester ${semester} has been published. Check the Timetable section.`;
-    await db.query(
-      `INSERT INTO notices (title, content, target_type, target_session_id, is_auto, author_user_id)
-       VALUES ($1, $2, 'session', $3, true, $4)`,
-      [title, content, session_id, req.user.user_id]
-    );
+    // Auto-notice using the helper
+    const faculty_id = req.user.faculty_id;
+    await createAutoNotice({
+      faculty_id,
+      session_id,
+      subject_id: null,
+      target_type: 'session',
+      title: '📅 Timetable Published',
+      content: `Timetable for Semester ${semester} has been published. Check the Timetable section.`,
+      ref_type: 'timetable',
+      ref_id: null,
+      expires_at: null,
+      pool: db
+    });
 
-    await db.query('COMMIT');
     res.json({ message: 'Timetable published' });
   } catch (err) {
-    await db.query('ROLLBACK');
     res.status(500).json({ message: err.message });
   }
 };

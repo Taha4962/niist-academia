@@ -268,7 +268,8 @@ CREATE TABLE IF NOT EXISTS projects (
   title       VARCHAR(200) NOT NULL,
   description TEXT,
   semester    INT NOT NULL,
-  is_enabled  BOOLEAN DEFAULT false
+  is_enabled  BOOLEAN DEFAULT false,
+  created_at  TIMESTAMP DEFAULT NOW()
 );
 
 -- 23. project_teams
