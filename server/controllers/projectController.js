@@ -349,9 +349,23 @@ const getSessionStudents = async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
+// GET /api/projects/faculty-list — simple faculty list for guide dropdown
+const getFacultyList = async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT f.faculty_id, f.name, f.employee_id, f.designation
+      FROM faculty f
+      JOIN users u ON f.user_id = u.user_id
+      WHERE u.is_active = true
+      ORDER BY f.name
+    `);
+    res.json(rows);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
 module.exports = {
   getProjects, createProject, updateProject, toggleProject,
   getTeams, createTeam, updateTeam, addMember, removeMember,
   getMilestones, createMilestones, updateMilestone, deleteMilestone,
-  getHodOverview, getSessionStudents
+  getHodOverview, getSessionStudents, getFacultyList
 };

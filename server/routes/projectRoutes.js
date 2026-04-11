@@ -15,6 +15,9 @@ router.get('/student/self', checkStudent, getStudentProject);
 // Faculty: list students in a session (for building project teams)
 router.get('/session-students/:session_id', checkFaculty, projectController.getSessionStudents);
 
+// Faculty: list all faculty (for guide dropdown)
+router.get('/faculty-list', checkFaculty, projectController.getFacultyList);
+
 // Milestone and team sub-routes (specific before generic params)
 router.put('/milestones/:milestone_id', checkFaculty, projectController.updateMilestone);
 router.delete('/milestones/:milestone_id', checkFaculty, projectController.deleteMilestone);

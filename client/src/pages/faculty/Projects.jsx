@@ -69,7 +69,7 @@ const FacultyProjects = () => {
     try {
       const [subRes, facRes] = await Promise.all([
         api.get('/faculty/subjects'),
-        api.get('/hod/faculty')
+        api.get('/projects/faculty-list')
       ]);
       const allSubjects = subRes.data;
       setSubjects(allSubjects);
