@@ -1,90 +1,79 @@
 # NIIST Academia
+> A production-grade, full-stack academic management and AI-assisted educational platform for modern computing departments.
 
-**Comprehensive Academic Operations & Management System**  
-*NRI Institute of Information Science and Technology, Bhopal (RGPV Affiliated) — CSE Department*
+## 📌 Problem Statement
+Traditional academic management relies heavily on fragmented spreadsheets and isolated databases. This leads to delayed attendance tracking, disjointed communication, and significant administrative overhead. Furthermore, generating customized, curriculum-aligned assessments is incredibly time-consuming for faculty members.
 
-NIIST Academia is a full-stack educational platform built exclusively for streamlining college operations. It implements strict, hierarchical role-based access for HODs, Faculties, and Students while integrating a specialized, decoupled **AI Service** to unlock intelligent academic features.
+## 💡 Solution Overview
+NIIST Academia is a highly scalable college management system designed to unify departmental operations for the NRI Institute of Information Science and Technology. It provides role-specific dashboards, automated attendance and performance monitoring, embedded AI tools, and strict role-based access control, all orchestrated over a containerized microservices architecture.
 
----
+## 👥 Who Uses This System
+* **Students**: Gain real-time visibility into their academic standing (attendance, marks, specific timetables), retrieve automated notices, and seamlessly manage B.Tech project deliverables.
+* **Faculty**: Utilize streamlined attendance entry (time-gated), review automated shortage flagging, manage project milestones, and leverage AI-assisted assessment creation specific to their assigned subjects.
+* **Head of Department (HOD)**: Root access for calendar planning, faculty assignments, global department pinned notices, timetable publishing, and macroscopic decision-making capabilities.
 
-## 🌟 Key Features by Role
+## ✨ Key Technical Features
+* **Role-Based Access Control (RBAC)**: Deeply enforced zero-trust architecture across all API routes via explicit `roleMiddleware.js` for HODs, Faculty, and Students.
+* **Automated Notice Actions**: Event-driven communications triggered by critical system and academic events (e.g., automated low-attendance warnings).
+* **Project & Milestone Tracking**: Dedicated, state-driven workflows for B.Tech project team formation, guide allocation, and ongoing milestone evaluation.
+* **Raw SQL Performance**: Completely bypassed traditional ORMs (Mongoose/Sequelize) in favor of raw `pg` bindings to maximize query speed across 27 normalized relational tables.
 
-| Role | Access & Capabilities |
-|------|------------------------|
-| **HOD (Head of Dept)** | Root access. Oversees all faculty subject assignments, academic calendar planning, global department pinned notices, and timetable publishing. |
-| **Faculty** | Read-write access specific to assigned subjects. Uploads marks and daily attendance (time-gated to midnight), pushes class assignments/notes, monitors project milestones. |
-| **Student** | Read-only access for consuming notices, personalized timetables, and academic marks. Upload privileges are strictly isolated to assignment and designated project module submissions. |
+## 🧠 AI Service Microservice
+The platform utilizes a decoupled AI architecture orchestrated via Python and FastAPI:
+* **Hybrid Deployment Option**: For local development, it operates on a CPU-bound **Ollama (Llama 3.2)** instance with zero cloud dependencies ensuring optimal privacy. For cloud deployments (Render), it seamlessly falls back to the **Groq Cloud API**.
+* **Asynchronous Execution**: Fully decoupled from the main Node.js event loop, preventing heavy LLM inferences from blocking concurrent academic REST requests.
 
----
+## 🏗 System Architecture & Tech Stack
+The ecosystem employs a robust multi-container architecture via Docker Compose:
+* **Frontend (`client`)**: React.js SPA powered by Vite and TailwindCSS for a highly responsive, optimal UX.
+* **Core API (`server`)**: Node.js and Express backend handling authentication, complex relational business logic, and stateless JWT sessions.
+* **AI Intelligence (`ai-service`)**: Python FastAPI backend structuring prompts and returning sanitized, intelligent completions.
+* **Data Persistence (`database`)**: PostgreSQL 15 operating as the strictly 3NF normalized single source of truth.
 
-## 🏗️ Technical Architecture & Stack
+## 📂 Repository Structure
+```text
+niist-academia/
+├── client/          # React SPA (Vite, Tailwind, Axios)
+├── server/          # Node.js API (Raw SQL, JWT Middleware, Controllers)
+├── ai-service/      # Python FastAPI (Local LLM & Groq orchestration)
+├── docker/          # Isolated Dockerfiles for development
+├── render.yaml      # Render blueprint integration for cloud
+└── docker-compose.yml # Master orchestration for local ecosystem
+```
 
-The application is structured into decoupled, highly scalable components:
+## 🚀 Quick Start (Local Docker Setup)
 
-| Layer | Component | Description | Port |
-|-------|-----------|-------------|------|
-| **Frontend** | React.js + Vite | Responsive, fast client UI using Tailwind CSS and Lucide React icons. | `3000` |
-| **Backend API** | Node.js + Express | RESTful server bridging database queries and enforcing stateless JWT auth. | `5000` |
-| **Database** | PostgreSQL 15 | Relational DB maintaining 27 strict tables (No ORMs are used; native `pg` queries optimize complex relational logic). | `5432` |
-| **AI Service** | Python FastAPI | Independent microservice querying the Groq Cloud API for academic intelligence securely. | `8000` |
-| **Storage** | Cloudinary | Global asset storage for PDFs, documents, profile photos. | `N/A` |
-| **LLM Engine** | Groq API | Utilizes `llama3-8b-8192` model for instantaneous, cloud-based inference. | `N/A` |
-
----
-
-## 🚀 Quick Start (Local Run)
-
-The repository provides a complete isolated network setup via Docker Compose.
+**Prerequisites**: Docker, Docker Compose, and Git.
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/Taha4962/niist-academia.git
 cd niist-academia
 
-# Boot all backend, frontend, and database services
-docker-compose up --build
+# 2. Configure variables based on the template
+cp .env.example .env
+
+# 3. Boot the isolated container ecosystem
+docker-compose up --build -d
+
+# Accessible Endpoints:
+# Frontend UI: http://localhost:3000
+# API Backend: http://localhost:5000
+# AI Service: http://localhost:8000
 ```
-*Note: Make sure to properly configure `.env` variables like `GROQ_API_KEY` and `CLOUDINARY_*` targeting your `.env.example` templates prior to startup. Local database seeding will automatically execute upon first Postgres initialization.*
+*Note: The PostgreSQL database (`5432`) is automatically seeded with faculties, subjects, and timetables via initialization scripts on the very first boot.*
 
----
-
-## ☁️ Deployment (Cloud via Render)
-
-This application is ready for scalable deployment on [Render](https://render.com) using the included `render.yaml` configuration.
-
-1. **Database:** Deploy a managed PostgreSQL instance via Render or Supabase.
-2. **Third-party Services:** Obtain API Keys from [Groq Console](https://console.groq.com/) and [Cloudinary](https://cloudinary.com).
-3. **Render Blueprint:** From the Render Dashboard, connect this repository via **Blueprints**.
-4. **Environment Configuration:** Render will prompt you for the required variables:
-   - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSL=true`
-   - `GROQ_API_KEY`
-   - `CLOUDINARY_NAME`, `CLOUDINARY_KEY`, `CLOUDINARY_SECRET`
-   - `JWT_SECRET`, `VITE_API_URL`
-5. **Auto-Deploy:** Render spins up the Node API, FastAPI, and Vite static site independently without Docker overhead. Because Render free databases expire after 90 days, we highly recommend connecting a permanent external DB.
-
----
+## ☁️ Cloud Deployment
+This application is fully decoupled and optimized for scalable cloud deployment via [Render](https://render.com) using the included `render.yaml`. 
+1. Supply PostgreSQL, Cloudinary, and Groq API variables in the dashboard.
+2. The blueprint natively spins up the Node API, FastAPI, and statically serves the Vite site devoid of Docker overhead.
 
 ## 🔑 Default Seeded Credentials
-
 | Role | Login ID | Password |
 |------|-----------|-----------|
 | **HOD** | `hod@niist.ac.in` | `NIIST@HOD001` |
-| **Faculty** | *Valid registered email* | `NIIST@{employee_id}` |
-| **Student** | *Valid enrollment_no* | `NIIST@{last_4_digits}` |
-
----
-
-## 📁 Repository Map
-
-```
-niist-academia/
-├── client/          # React App (Axios, React-Router-Dom, Tailwind)
-├── server/          # Express API (Mongoose-less Raw SQL logic, JWT Middleware)
-├── ai-service/      # Python Microservice (FastAPI + Groq)
-├── docker/          # Dockerfile configurations for local development
-├── render.yaml      # Render blueprint integration
-└── docker-compose.yml 
-```
+| **Faculty** | *(Valid registered email)* | `NIIST@{employee_id}` |
+| **Student** | *(Valid enrollment_no)* | `NIIST@{last_4_digits}` |
 
 ## ⚖️ License
-Private — Developed for NIIST Bhopal, CSE Department.
+Private — Developed specifically for NIIST Bhopal, CSE Department.
